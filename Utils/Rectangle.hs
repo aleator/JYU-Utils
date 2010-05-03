@@ -97,3 +97,8 @@ tile tilesize overlap r = [mkRectangle ((x,y)-overlap) tilesize
      endx = right  r+fst overlap
      endy = bottom r+snd overlap
 
+-- | Scale a rectangle
+scale (a,b) (Rectangle ((x,y),(s1,s2))) 
+    = mkRectangle (round (a*fromIntegral x),round (b*fromIntegral y))
+                  (round (a*fromIntegral s1),round (b*fromIntegral s2))
+
