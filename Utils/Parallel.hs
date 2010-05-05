@@ -2,10 +2,11 @@ module Utils.Parallel where
 import Data.IORef
 import Control.Concurrent
 import Control.Concurrent.STM
-import Control.Exception
+import Control.Exception as E
 import Control.Monad
 
 import Utils.Monad
+import Utils.File
 
 -- Module for running simple tasks in parallel
 -- Fork with indicator when the action completes
@@ -47,12 +48,19 @@ taskRunner s terminated tasks = complete (Just $ return ())
   catch t e = case s of 
                      Persistent -> do
                                     atomically (tvarPush tasks t)
-                                    appendFile "PAR-RUN-ERRORS" ("persisting: "++show e++"\n") 
-                     Failing -> appendFile "PAR-RUN-ERRORS" ("failing: "++show e++"\n") 
+                                    strictAppendFile "PAR-RUN-ERRORS" ("persisting: "++show e++"\n")
+                                        `E.catch` (\err -> error $ "Error adding to PAR-RUN-ERRORS "
+                                                        ++show (err:: IOException)++". Tried to add "
+                                                        ++show e)
+                                        
+                     Failing -> strictAppendFile "PAR-RUN-ERRORS" ("failing: "++show e++"\n") 
+                                        `E.catch` (\err -> error $ "Error adding to PAR-RUN-ERRORS "
+                                                        ++show (err:: IOException)++". Tried to add "
+                                                        ++show e)
 
   
   complete (Just task) = do 
-                    task `Control.Exception.catch` (catch task)
+                    task `E.catch` (catch task)
                     newTask <- next
                     complete newTask
   complete Nothing = atomically $ writeTVar terminated True
