@@ -7,9 +7,10 @@ import System.Cmd
 import System.Directory(createDirectoryIfMissing
                        ,setCurrentDirectory
                        ,getCurrentDirectory)
-import Control.Exception(bracket_)
+import Control.Exception as E(bracket_,catch,evaluate) 
 import qualified System.FilePath.Posix as Posix
 import System.Directory
+import System.IO
 
 import Control.Parallel.Strategies
 import Control.Exception
@@ -30,8 +31,13 @@ class Cacheable a where
 
 instance (Binary a) => Cacheable a
     where
-     readCache  fn = BS.readFile fn >>= return . decode . decompress
-     writeCache fn x = BS.writeFile fn . compress . encode $ x
+     readCache  fn   = do
+                        (BS.readFile fn >>= E.evaluate . decode . decompress) 
+                            `E.catch` (\err -> error $ "Error reading cache "++fn++": "
+                                                        ++show (err:: IOException))
+     writeCache fn x = (BS.writeFile fn . compress . encode $ x)
+                            `E.catch` (\err -> error $ "Error writing cache "++fn++": "
+                                                        ++show (err:: IOException))
 
 cached :: (Cacheable a) => FilePath -> IO a -> IO a
 cached fn op = do
