@@ -18,7 +18,7 @@ Library
                        Utils.DynMap,Utils.Parallel, Utils.SemanticEditors, 
                        Utils.Table, Utils.File, Utils.List, Utils.Point, Utils.Shuffle, Utils.Vector, 
                        Utils.Monad, Utils.Rectangle, Utils.Stream, Utils.MonadRandom,
-                       Utils.BinaryInstances
+                       Utils.BinaryInstances, Utils.Exception
 
     ghc-options:       -O2 -fglasgow-exts
 
