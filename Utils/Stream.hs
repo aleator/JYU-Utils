@@ -59,6 +59,10 @@ sequenceS (Value next) = Value $ do
 			    (op,n) <- next
 			    r <- op	
 		            return (r,sequenceS n)
+
+mapMS :: (Monad m) => (a -> m b) -> Stream m a -> Stream m b
+mapMS op s = sequenceS . fmap op $ s
+
 --
 takeS :: (Monad m) => Int -> Stream m a -> Stream m a
 takeS _ Terminated = Terminated
