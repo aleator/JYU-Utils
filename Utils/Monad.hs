@@ -1,9 +1,9 @@
 module Utils.Monad where
 import Control.Monad
-import Control.Parallel.Strategies(demanding,rnf)
+import Control.Parallel.Strategies( ($|) , rdeepseq)
 
--- Return result evaluated to rnf
-bangReturn x = return x `demanding` rnf x
+-- Return result fully evaluated
+bangReturn x = return $| rdeepseq $ x
 
 -- Monadic if
 conditional cond thenOp elseOp = do
