@@ -73,6 +73,21 @@ takeS n (Value next) = Value renext
 		   if n<1 then return (r,Terminated)
 		   	     else return (r,takeS (n-1) ne)
 
+consS a Terminated = Value (return (a, Terminated))
+consS a s  = Value (return (a, s))
+
+-- pairS is safe only for infinite streams
+pairS :: (Monad m) => Stream m a -> Stream m (a,a)
+pairS Terminated = Terminated
+pairS (Value next) = Value renext
+	where
+         renext = do
+            (val1,nexts2) <- next
+            case nexts2 of
+                Terminated    -> return (undefined,Terminated)
+                (Value next2) -> do (val2,next3) <- next2
+                                    return ((val1,val2),pairS (consS val2 next3))
+
 
 terminateOn :: (Monad m) => (a -> Bool) -> Stream m a -> Stream m a
 terminateOn cond Terminated = Terminated
