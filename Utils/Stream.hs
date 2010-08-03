@@ -73,6 +73,14 @@ takeS n (Value next) = Value renext
 		   if n<1 then return (r,Terminated)
 		   	     else return (r,takeS (n-1) ne)
 
+takeWhileS _ Terminated = Terminated
+takeWhileS c (Value next) = Value renext
+	where
+         renext = do
+		   (r,ne) <- next
+		   if c r then return (r,Terminated)
+		   	      else return (r,takeWhileS c ne)
+
 consS a Terminated = Value (return (a, Terminated))
 consS a s  = Value (return (a, s))
 
