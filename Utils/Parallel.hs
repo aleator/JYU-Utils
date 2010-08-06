@@ -103,3 +103,24 @@ parRunWithMonitor s poolSize monitor tasks = do
 --    atomically $ do
 --        terminated <- (liftT (return.null)) t
 --        check terminated
+
+-- Simple Concurrent mapping
+
+
+fork1 :: (a -> IO b) -> a -> IO (MVar b)
+fork1 f x =
+  do
+    cell <- newEmptyMVar
+    forkIO (do { result <- f x; putMVar cell result })
+    return cell
+
+fork :: (a -> IO b) -> [a] -> IO [MVar b]
+fork f = mapM (fork1 f)
+
+joinMVars :: [MVar b] -> IO [b]
+joinMVars = mapM takeMVar
+
+forkAndJoin :: (a -> IO b) -> [a] -> IO [b]
+forkAndJoin f xs = (fork f xs) >>= joinMVars
+
+

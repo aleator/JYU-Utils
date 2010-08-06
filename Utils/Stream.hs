@@ -78,7 +78,7 @@ takeWhileS c (Value next) = Value renext
 	where
          renext = do
 		   (r,ne) <- next
-		   if c r then return (r,Terminated)
+		   if not . c $ r then return (r,Terminated)
 		   	      else return (r,takeWhileS c ne)
 
 consS a Terminated = Value (return (a, Terminated))
