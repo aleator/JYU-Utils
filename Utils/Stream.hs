@@ -30,6 +30,41 @@ iterateS op n = Value cont
 		 r <- op n
 		 return $ (n,iterateS op r) 
 
+-- | Merge two streams
+time (a,_) = a
+value (_,a) = a
+mergeTimeStreams starta startb  a b = mergeE (starta,startb) (mergeS a b)
+mergeTimeStreamsWith sa sb op a b = fmap (\(t,(a,b)) -> (t,(op a b))) $ mergeTimeStreams sa sb a b
+mergeManyW starts op streams = snd $ foldl1 (\(s,m) (s1,n) -> ((op s s1),mergeTimeStreamsWith s s1 op m n)) (zip starts streams)
+
+mergeS Terminated _ = Terminated
+mergeS _ Terminated = Terminated
+mergeS _ Terminated = Terminated
+mergeS (Value xs) (Value ys) = Value renext
+    where
+        renext = do
+            (x,xn) <- xs
+            (y,yn) <- ys
+            case compare (time x) (time y) of
+                LT -> return (L x,mergeS xn (push y yn))
+                EQ -> return (B (time x,(value x,value y)),mergeS xn yn)
+                GT -> return (R y,mergeS (push x xn) yn)
+
+data LRB a b c = L a | B b |  R c  deriving (Show)
+
+push x Terminated = Value (return (x,Terminated))
+push x xs = Value (return (x,xs))
+ 
+mergeE _ Terminated = Terminated
+mergeE (l,r) (Value xs) = Value renext
+    where
+        renext = do
+                   (x,xn) <- xs
+                   case x of
+                    L (t,a) -> return ((t,(a,r)),mergeE (a,r) xn)
+                    B (t,(a,b)) -> return ((t,(a,b)),mergeE (a,b) xn)
+                    R (t,b) -> return ((t,(l,b)),mergeE (l,b) xn)
+
 -- | Map over a stream
 instance (Monad m) => Functor (Stream m) where
     fmap _ Terminated   = Terminated
