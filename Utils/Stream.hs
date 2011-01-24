@@ -30,7 +30,14 @@ iterateS op n = Value cont
 		 r <- op n
 		 return $ (n,iterateS op r) 
 
--- | Merge two streams
+-- | Pure and monadic left fold over a stream
+foldS op i Terminated = return i
+foldS op i (Value xs) = xs >>= \(x,xn) -> foldS op (op i x) xn
+
+foldSM op i Terminated = return i
+foldSM op i (Value xs) = xs >>= \(x,xn) -> op i x >>= \opix -> foldSM op opix xn
+
+-- | Merge two (time)streams
 time (a,_) = a
 value (_,a) = a
 mergeTimeStreams starta startb  a b = mergeE (starta,startb) (mergeS a b)
@@ -52,9 +59,6 @@ mergeS (Value xs) (Value ys) = Value renext
 
 data LRB a b c = L a | B b |  R c  deriving (Show)
 
-push x Terminated = Value (return (x,Terminated))
-push x xs = Value (return (x,xs))
- 
 mergeE _ Terminated = Terminated
 mergeE (l,r) (Value xs) = Value renext
     where
@@ -64,6 +68,10 @@ mergeE (l,r) (Value xs) = Value renext
                     L (t,a) -> return ((t,(a,r)),mergeE (a,r) xn)
                     B (t,(a,b)) -> return ((t,(a,b)),mergeE (a,b) xn)
                     R (t,b) -> return ((t,(l,b)),mergeE (l,b) xn)
+
+push x Terminated = Value (return (x,Terminated))
+push x xs = Value (return (x,xs))
+ 
 
 -- | Map over a stream
 instance (Monad m) => Functor (Stream m) where
