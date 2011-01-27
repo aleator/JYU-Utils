@@ -106,7 +106,23 @@ sequenceS (Value next) = Value $ do
 mapMS :: (Monad m) => (a -> m b) -> Stream m a -> Stream m b
 mapMS op s = sequenceS . fmap op $ s
 
---
+-- |Drop elements from the stream. Due to stream structure, this operation cannot
+--  fail gracefully when dropping more elements than what is found in the stream
+dropS :: (Monad m) => Int -> Stream m a -> Stream m a
+dropS _ Terminated = Terminated
+dropS n next = Value renext
+	where
+         drop 0 s = return s
+         drop _ Terminated = return Terminated
+         drop n (Value next) =  do
+            (r,ne) <- next 
+            drop (n-1) ne
+         renext = do
+            r <- drop n next
+            case r of
+                Terminated -> error "Not enough elements to drop"
+                Value x -> x
+
 takeS :: (Monad m) => Int -> Stream m a -> Stream m a
 takeS _ Terminated = Terminated
 takeS n (Value next) = Value renext
