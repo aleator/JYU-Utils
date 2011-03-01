@@ -2,8 +2,15 @@ module Utils.Rectangle where
 import Test.LazySmallCheck
 
 import Utils.Point
+import Control.DeepSeq
 
 newtype Rectangle a = Rectangle ((a,a),(a,a)) deriving (Eq,Show)
+
+a `s` b = rnf a `seq` b 
+
+instance (NFData a) => NFData (Rectangle a) where
+    rnf (Rectangle ((a,b),(c,d))) = (a `s` b `s` c `s` d) `seq` ()
+
 left   (Rectangle ((x,y),(w,h))) = x
 right  (Rectangle ((x,y),(w,h))) = x+w
 top    (Rectangle ((x,y),(w,h))) = y
