@@ -29,10 +29,12 @@ class Cacheable a where
     writeCache :: FilePath -> a -> IO ()
     readCache  :: FilePath -> IO a
 
+box x = [x]
+
 instance (Binary a) => Cacheable a
     where
      readCache  fn   = do
-                        (BS.readFile fn >>= E.evaluate . decode . decompress) 
+                        (B.readFile fn >>= E.evaluate . decode . decompress . BS.fromChunks . box ) 
                             `E.catch` (\err -> error $ "Error reading cache "++fn++": "
                                                         ++show (err:: IOException))
      writeCache fn x = (BS.writeFile fn . compress . encode $ x)
