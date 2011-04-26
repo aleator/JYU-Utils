@@ -17,3 +17,4 @@ norm2 (a,b) = a*a+b*b
 
 norm = sqrt . norm2
 
+(a,b) >/ (c,d) = (a `div` c, b `div` d)

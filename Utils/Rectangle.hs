@@ -54,6 +54,9 @@ mkRec = uncurry mkRectangle
 -- | Return rectangle r2 in coordinate system defined by r1
 inCoords r1 r2@(Rectangle (pos,size)) = Rectangle (pos-topLeft r1,size )
 
+-- | Return a point in coordinates of given rectangle
+inCoords' r1 pt = pt - topLeft r1
+
 -- | Adjust the size of the rectangle to be divisible by 2^n.
 enlargeToNthPower n (Rectangle ((x,y),(w,h))) = Rectangle ((x,y),(w2,h2))
     where
@@ -94,7 +97,7 @@ prop_intersect1DCommutes a b
 prop_intersectsCommutes sa@(_,(s1,s2)) sb@(b,(s3,s4)) 
     = intersects (mkRec sa) (mkRec sb) == intersects (mkRec sb) (mkRec sa)
 
--- | Create a tiling of a rectangle. Tile
+-- | Create a tiling of a rectangles. 
 tile tilesize overlap r = [mkRectangle ((x,y)-overlap) tilesize 
                           | x <- [startx,startx+fst tilesize..endx]
                           , y <- [starty,starty+fst tilesize..endy] ]
@@ -108,4 +111,10 @@ tile tilesize overlap r = [mkRectangle ((x,y)-overlap) tilesize
 scale (a,b) (Rectangle ((x,y),(s1,s2))) 
     = mkRectangle (round (a*fromIntegral x),round (b*fromIntegral y))
                   (round (a*fromIntegral s1),round (b*fromIntegral s2))
+
+
+toInt (Rectangle (p, s)) 
+    = Rectangle (both round p 
+                ,both round s)
+ where both f (a,b) = (f a , f b)
 
