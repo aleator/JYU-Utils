@@ -1,3 +1,4 @@
+{-#LANGUAGE ParallelListComp#-}
 module Utils.Table where
 import Prelude hiding (map)
 import Control.Monad

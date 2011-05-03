@@ -1,4 +1,4 @@
-{-# OPTIONS -fglasgow-exts #-}
+{-#LANGUAGE ScopedTypeVariables#-}
 module Utils.String where
 
 import Numeric

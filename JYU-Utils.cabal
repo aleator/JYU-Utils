@@ -1,5 +1,5 @@
 Name:                JYU-Utils
-Version:             0.1.1
+Version:             0.1.1.1
 Synopsis:            Some utility functions for JYU projects
 Description:         List, function and monad utility functions. 
                      Includes an old variant of MonadRandom that is used in 

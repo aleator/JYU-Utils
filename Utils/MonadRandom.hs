@@ -1,5 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts #-}
-
+{-#LANGUAGE GeneralizedNewtypeDeriving#-}
 -- Taken from haskell wiki: http://www.haskell.org/hawiki/MonadRandom
 
 module Utils.MonadRandom (
