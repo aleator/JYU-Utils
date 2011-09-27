@@ -14,7 +14,6 @@ import System.IO
 
 import Control.Parallel.Strategies
 import Control.Exception
-import IO
 import qualified Data.ByteString.Char8 as B
 import qualified Data.ByteString.Lazy as BS
 import Codec.Compression.GZip

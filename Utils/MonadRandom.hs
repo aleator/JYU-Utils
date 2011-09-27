@@ -21,7 +21,7 @@ module Utils.MonadRandom (
     Rand, RandomT -- but not the data constructors
     ) where
 
-import Random
+import System.Random
 import Control.Monad.State
 import Control.Monad.Identity
 import Data.List(genericLength)
